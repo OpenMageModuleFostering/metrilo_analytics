@@ -187,8 +187,9 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
             'hs'  => $basedCall
         );
 
+        /** @var Metrilo_Analytics_Helper_Asynchttpclient $asyncHttpHelper */
         $asyncHttpHelper = Mage::helper('metrilo_analytics/asynchttpclient');
-        $asyncHttpHelper->post('http://p.metrilo.com/bt', $requestBody);
+        $asyncHttpHelper->post('http://p.metrilo.com/bt', $requestBody, false);
     }
 
     /**
