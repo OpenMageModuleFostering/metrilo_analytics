@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Metrilo_Analytics</name>
-    <version>1.2.5</version>
+    <version>1.2.6</version>
     <stability>stable</stability>
     <license>Apache Software License (ASL)</license>
     <channel>community</channel>
@@ -18,11 +18,11 @@
 * Powerful intelligence for your sales team&amp;amp;#xD;&amp;#xD;&#xD;
 * With Metrilo, you have an amazing real-time overview of who's doing what on your eCommerce store.&amp;amp;#xD;&amp;#xD;&#xD;
 * Metrilo automatically collects and analyzes your eCommerce data to use for your email campaigns.</description>
-    <notes>Show plugin version in hint header.</notes>
+    <notes>Update PHP requirements.</notes>
     <authors><author><name>Murry Ivanoff</name><user>Metrilo</user><email>murry@metrilo.com</email></author><author><name>Zhivko Draganov</name><user>zhivko</user><email>zhivko@metrilo.com</email></author><author><name>Miroslav Petrov</name><user>miro</user><email>miro91tn@gmail.com</email></author><author><name>Marush Denchev</name><user>marush</user><email>avreon@gmail.com</email></author></authors>
-    <date>2017-07-08</date>
-    <time>10:34:47</time>
+    <date>2017-07-24</date>
+    <time>10:48:31</time>
     <contents><target name="magecommunity"><dir name="Metrilo"><dir name="Analytics"><dir name="Block"><dir name="Adminhtml"><dir name="System"><dir name="Config"><dir name="Form"><file name="Button.php" hash="d080857c4ae4de4d9bb8bccae029a238"/><file name="Hint.php" hash="e62a4311804cccaa16bbf0e9963f5b33"/></dir></dir></dir></dir><file name="Head.php" hash="e310a5a89fce3f08920790ad11e79af0"/></dir><dir name="Helper"><file name="Asynchttpclient.php" hash="91af14d00df28453aadcd88ebedc948a"/><file name="Data.php" hash="dea3dd378601e212005a7ef06173d3de"/></dir><dir name="Model"><file name="Import.php" hash="a85251d30dba509ccf3e8b742fdf4385"/><file name="Observer.php" hash="35b53b63d89a51bc8a58a2def76100aa"/></dir><dir name="controllers"><dir name="Adminhtml"><file name="AjaxController.php" hash="17818655392951e904d59615eb2ead1e"/></dir></dir><dir name="etc"><file name="adminhtml.xml" hash="2fdab5ef85143c8c30f4c3bb15628f83"/><file name="config.xml" hash="e65553a4b035abfdb69a715498ef24c3"/><file name="system.xml" hash="da8418ee98c15e245d3c80e96e4a33e0"/></dir></dir></dir></target><target name="mageskin"><dir name="adminhtml"><dir name="default"><dir name="default"><dir name="metrilo"><file name="favicon-metrilo.png" hash="743558f1e49a730be9d515197a36567b"/><file name="loader.gif" hash="e05e6bb35d035cac4f3e0c8af213e9ab"/><file name="logo.png" hash="e9e54afd81384e12f77aca4eaebf5be8"/><file name="styles.css" hash="da0c07513d917e4ad08ff50814b536e1"/></dir></dir></dir></dir></target><target name="magedesign"><dir name="adminhtml"><dir name="default"><dir name="default"><dir name="template"><dir name="metrilo"><dir name="system"><dir name="config"><file name="button.phtml" hash="ae861308ebc1460950edcac10bf8024f"/><file name="hint.phtml" hash="5f2b4a07a5466e41043e7cb7a3f7ded8"/></dir></dir></dir></dir><dir name="layout"><file name="metrilo_analytics.xml" hash="0e6911e2e883992f2182969286d929b1"/></dir></dir></dir></dir><dir name="frontend"><dir name="base"><dir name="default"><dir name="template"><dir name="metrilo"><file name="head.phtml" hash="8bc0f1562031c7061110477cba3d662f"/></dir></dir><dir name="layout"><file name="metrilo_analytics.xml" hash="c7dcf4057bc31d906865e82159ac5eca"/></dir></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Metrilo_Analytics.xml" hash="3a4dbecc4e093537f11dd4c8fa2756e7"/></dir></target></contents>
     <compatible/>
-    <dependencies><required><php><min>5.2.1</min><max>5.6.30</max></php></required></dependencies>
+    <dependencies><required><php><min>5.2.1</min><max>5.6.100</max></php></required></dependencies>
 </package>
