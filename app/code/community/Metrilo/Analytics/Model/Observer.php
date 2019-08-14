@@ -44,12 +44,30 @@ class Metrilo_Analytics_Model_Observer
     {
         $helper = Mage::helper('metrilo_analytics');
         $action = $observer->getEvent()->getAction()->getFullActionName();
-        $pageTracked = false;
+
+        if ($this->_isRejected($action)) {
+            return;
+        }
+
+        // Catalog search pages
+        if ($action == 'catalogsearch_result_index') {
+            $query = Mage::helper('catalogsearch')->getQuery();
+            if ($text = $query->getQueryText()) {
+                $resultCount = Mage::app()->getLayout()->getBlock('search.result')->getResultCount();
+                $params = array(
+                    'query' => $text,
+                    'result_count' => $resultCount
+                );
+                $helper->addEvent('track', 'search', $params);
+                return;
+            }
+        }
+
         // homepage & CMS pages
         if ($action == 'cms_index_index' || $action == 'cms_page_view') {
             $title = Mage::getSingleton('cms/page')->getTitle();
-            $helper->addEvent('track', 'pageview', $title);
-            $pageTracked = true;
+            $helper->addEvent('track', 'pageview', $title, array('backend_hook' => $action));
+            return;
         }
         // category view pages
         if($action == 'catalog_category_view') {
@@ -59,7 +77,7 @@ class Metrilo_Analytics_Model_Observer
                 'name'  =>  $category->getName()
             );
             $helper->addEvent('track', 'view_category', $data);
-            $pageTracked = true;
+            return;
         }
         // product view pages
         if ($action == 'catalog_product_view') {
@@ -86,23 +104,35 @@ class Metrilo_Analytics_Model_Observer
                 $data['categories'] = $categories;
             }
             $helper->addEvent('track', 'view_product', $data);
-            $pageTracked = true;
+            return;
         }
         // cart view
         if($action == 'checkout_cart_index') {
             $helper->addEvent('track', 'view_cart', array());
-            $pageTracked = true;
+            return;
         }
         // checkout
         if ($action != 'checkout_cart_index' && strpos($action, 'checkout') !== false && strpos($action, 'success') === false) {
             $helper->addEvent('track', 'checkout_start', array());
-            $pageTracked = true;
+            return;
         }
+
         // Any other pages
-        if(!$pageTracked) {
-            $title = $observer->getEvent()->getLayout()->getBlock('head')->getTitle();
-            $helper->addEvent('track', 'pageview', $title);
-        }
+        $title = $observer->getEvent()->getLayout()->getBlock('head')->getTitle();
+        $helper->addEvent('track', 'pageview', $title, array('backend_hook' => $action));
+    }
+
+    /**
+    * Events that we don't want to track
+    *
+    * @param string event
+    */
+    private function _isRejected(string $event)
+    {
+        return in_array(
+            $event,
+            array('catalogsearch_advanced_result', 'catalogsearch_advanced_index')
+        );
     }
 
     /**
@@ -200,6 +230,18 @@ class Metrilo_Analytics_Model_Observer
         $order = $observer->getOrder();
         if ($order->getId()) {
             $data = $helper->prepareOrderDetails($order);
+            if($order->getCustomerIsGuest()) {
+                $identify = array(
+                    'id' => $order->getCustomerEmail(),
+                    'params' => array(
+                        'email'         => $order->getCustomerEmail(),
+                        'name'          => $order->getCustomerFirstname(). ' '. $order->getCustomerLastname(),
+                        'first_name'    => $order->getCustomerFirstname(),
+                        'last_name'     => $order->getCustomerLastname(),
+                    )
+                );
+                $helper->addEvent('identify', 'identify', $identify);
+            }
             $helper->addEvent('track', 'order', $data);
         }
     }
