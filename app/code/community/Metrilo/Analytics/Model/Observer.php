@@ -45,7 +45,6 @@ class Metrilo_Analytics_Model_Observer
     {
         $helper = Mage::helper('metrilo_analytics');
         $action = (string)$observer->getEvent()->getAction()->getFullActionName();
-        var_dump($action);
 
         if ($this->_isRejected($action)) {
             return;
