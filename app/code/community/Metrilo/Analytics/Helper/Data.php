@@ -18,13 +18,32 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+    * Get storeId for the current request context
+    *
+    * @return string
+    */
+    public function getStoreId($request = null) {
+        if ($request) {
+            # If request is passed retrieve store by storeCode
+            $storeCode = $request->getParam('store');
+
+            if ($storeCode) {
+                return Mage::getModel('core/store')->load($storeCode)->getId();
+            }
+        }
+
+        # If no request or empty store code
+        return Mage::app()->getStore()->getId();
+    }
+
+    /**
      * Check if metrilo module is enabled
      *
      * @return boolean
      */
-    public function isEnabled()
+    public function isEnabled($storeId = null)
     {
-        return Mage::getStoreConfig('metrilo_analytics_settings/settings/enable');
+        return Mage::getStoreConfig('metrilo_analytics_settings/settings/enable', $storeId);
     }
 
     /**
@@ -32,9 +51,9 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
      *
      * @return string
      */
-    public function getApiToken()
+    public function getApiToken($storeId = null)
     {
-        return Mage::getStoreConfig('metrilo_analytics_settings/settings/api_key');
+        return Mage::getStoreConfig('metrilo_analytics_settings/settings/api_key', $storeId);
     }
 
     /**
@@ -42,9 +61,9 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
      *
      * @return string
      */
-    public function getApiSecret()
+    public function getApiSecret($storeId = null)
     {
-        return Mage::getStoreConfig('metrilo_analytics_settings/settings/api_secret');
+        return Mage::getStoreConfig('metrilo_analytics_settings/settings/api_secret', $storeId);
     }
 
     /**
@@ -139,47 +158,29 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Create HTTP request to Metrilo API to sync single order
-     *
-     * @param  Mage_Sales_Model_Order $order
-     * @return void
-     */
-    public function callApi($order, $async = true)
-    {
-        try {
-            $this->callBatchApi(array($order), $async);
-        } catch (Exception $e){
-            Mage::log($e->getMessage(), null, 'Metrilo_Analytics.log');
-        }
-    }
-
-    /**
      * Create HTTP request to Metrilo API to sync multiple orders
      *
      * @param Array(Mage_Sales_Model_Order) $orders
      * @return void
      */
-    public function callBatchApi($orders, $async = true)
+    public function callBatchApi($storeId, $orders)
     {
         try {
             $ordersForSubmition = $this->_buildOrdersForSubmition($orders);
-            $call = $this->_buildCall($ordersForSubmition);
-            if ($async) {
-                $this->_callMetriloApiAsync($call);
-            } else {
-                $this->_callMetriloApi($call);
-            }
+            $call = $this->_buildCall($storeId, $ordersForSubmition);
+
+            $this->_callMetriloApiAsync($storeId, $call);
         } catch (Exception $e) {
             Mage::log($e->getMessage(), null, 'Metrilo_Analytics.log');
         }
     }
 
     // Private functions start here
-
-    private function _callMetriloApiAsync($call) {
+    private function _callMetriloApiAsync($storeId, $call) {
         ksort($call);
+
         $basedCall = base64_encode(Mage::helper('core')->jsonEncode($call));
-        $signature = md5($basedCall.$this->getApiSecret());
+        $signature = md5($basedCall.$this->getApiSecret($storeId));
 
         $requestBody = array(
             's'   => $signature,
@@ -188,28 +189,6 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
 
         $asyncHttpHelper = Mage::helper('metrilo_analytics/asynchttpclient');
         $asyncHttpHelper->post('http://p.metrilo.com/bt', $requestBody);
-    }
-
-    private function _callMetriloApi($call) {
-        // Prepare call for submition
-        ksort($call);
-        $basedCall = base64_encode(Mage::helper('core')->jsonEncode($call));
-        $signature = md5($basedCall.$this->getApiSecret());
-
-        $requestBody = array(
-            's'   => $signature,
-            'hs'  => $basedCall
-        );
-
-        $client = new Varien_Http_Client('http://p.metrilo.com/bt');
-
-        // This method supports passing named array as well as key, value
-        $client->setParameterPost($requestBody);
-        $response = $client->request('POST');
-
-        if ($response->isError()) {
-            Mage::log($response->getBody(), null, 'Metrilo_Analytics.log');
-        }
     }
 
     /**
@@ -300,9 +279,9 @@ class Metrilo_Analytics_Helper_Data extends Mage_Core_Helper_Abstract
         );
     }
 
-    private function _buildCall($ordersForSubmition) {
+    private function _buildCall($storeId, $ordersForSubmition) {
         return array(
-            'token'    => $this->getApiToken(),
+            'token'    => $this->getApiToken($storeId),
             'events'   => $ordersForSubmition,
             // for debugging/support purposes
             'platform' => 'Magento ' . Mage::getEdition() . ' ' . Mage::getVersion(),
